@@ -76,9 +76,24 @@ public class DAO {
 	 * taille
 	 * @throws java.lang.Exception si la transaction a échoué
 	 */
-	public void createInvoice(CustomerEntity customer, int[] productIDs, int[] quantities)
-		throws Exception {
-		throw new UnsupportedOperationException("Pas encore implémenté");
+	public void createInvoice(CustomerEntity customer, int[] productIDs, int[] quantities) throws SQLException {
+		
+                String sql = "INSERT INTO Invoice VALUES(?,?,?)";
+                try (   Connection connection = myDataSource.getConnection();
+			PreparedStatement stmt = connection.prepareStatement(sql)
+                ) {
+                        // Définir la valeur du paramètre
+			//stmt.setInt(1, );
+			stmt.setInt(2, customer.getCustomerId());
+			//stmt.setFloat(3, product.getPrice());
+
+			stmt.executeUpdate();
+
+		}
+                
+                
+                /*throws Exception {
+		throw new UnsupportedOperationException("Pas encore implémenté");*/
 	}
 
 	/**
