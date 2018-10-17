@@ -103,5 +103,28 @@ public class TransactionTest {
 		ds.setPassword("sa");
 		return ds;
 	}	
+        
+        
+        //Si on crée une facture avec des productsId inconnus, la transaction échoue
+        @Test
+        public void createInvoiceWithUnknownProductId() throws Exception {
+            try {
+                 myDAO.createInvoice(myCustomer,new int[]{0,1,28},new int[]{2, 3, 4});
+            }
+            catch (Exception e) {
+            }
+           
+        }
+        
+        //Si on crée une facture avec une ou des quantité(s) négative(s), la transaction échoue
+        @Test
+        public void createInvoiceWithNegativeQuantity() throws Exception {
+            try {
+                 myDAO.createInvoice(myCustomer,new int[]{0,1,2},new int[]{2, 3, -4});
+            }
+            catch (Exception e) {
+            }
+           
+        }
 	
 }

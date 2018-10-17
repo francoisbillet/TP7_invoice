@@ -76,25 +76,48 @@ public class DAO {
 	 * taille
 	 * @throws java.lang.Exception si la transaction a échoué
 	 */
-	public void createInvoice(CustomerEntity customer, int[] productIDs, int[] quantities) throws SQLException {
-		
-                String sql = "INSERT INTO Invoice VALUES(?,?,?)";
-                try (   Connection connection = myDataSource.getConnection();
-			PreparedStatement stmt = connection.prepareStatement(sql)
+	public void createInvoice(CustomerEntity customer, int[] productIDs, int[] quantities) throws Exception {
+            if (productIDs.length != quantities.length) {
+                throw new Exception("Erreur, les tableaux doivent avoir la même taille");
+            }
+            
+            else {
+                String sql1 = "INSERT INTO Invoice (CustomerID) VALUES (?)";
+                String sql2 = "INSERT INTO Item (InvoiceID, Item, ProductID, Quantity, Cost) " + "SELECT ?, ?, ?, ?, Price FROM Product WHERE ID = ?";
+                try (
+                    Connection connection = myDataSource.getConnection();
+                    PreparedStatement stmt = connection.prepareStatement(sql1, Statement.RETURN_GENERATED_KEYS);
+                    PreparedStatement stmt2 = connection.prepareStatement(sql2);
                 ) {
-                        // Définir la valeur du paramètre
-			//stmt.setInt(1, );
-			stmt.setInt(2, customer.getCustomerId());
-			//stmt.setFloat(3, product.getPrice());
+                    
+                    stmt.setInt(1, customer.getCustomerId());
+                    stmt.executeUpdate();
 
-			stmt.executeUpdate();
+                    try ( ResultSet rs = stmt.getGeneratedKeys()) {
+                        while (!rs.next())
+                                throw new Exception("Erreur");
 
-		}
+                        int idInv = rs.getInt(1);
+                        int var;
+                        
+                        for (int i=0; i<productIDs.length; i++) {
+                            stmt2.setInt(1, idInv);
+                            stmt2.setInt(2, i);
+                            stmt2.setInt(3, productIDs[i]);
+                            stmt2.setInt(4, quantities[i]);
+                            stmt2.setInt(5, productIDs[i]);
+                            var = stmt2.executeUpdate();
+                            
+                            if (var == 0){
+                                throw new Exception("Erreur");
+                            }
+                       }
+
+                    } 
+                }
+            }
+        }
                 
-                
-                /*throws Exception {
-		throw new UnsupportedOperationException("Pas encore implémenté");*/
-	}
 
 	/**
 	 *
